@@ -7,17 +7,17 @@ main_menu() {
     echo "[*] SSH Window (3)"
     echo "[*] Exit (X)"
     read -p "[*] Select an option using the shortened option names: " option
-    if [ $option = 1 ] 
+    if [ $option = 1 ]
     then
         recovery_options
     elif [ $option = 2 ]
     then
         tool_options
     elif [ $option = 3 ]
-    then 
+    then
         ssh_window
     elif [ $option = C ]
-    then 
+    then
         echo "[*] Developer: a_i_da_n"
         echo "[*] Usefull components libimobiledevice"
         echo "[*] Usefull components rcg4u"
@@ -27,7 +27,7 @@ main_menu() {
     then
         echo "[-] Exiting program"
         exit
-    else 
+    else
         echo "[-] Unexpected input exiting program"
         exit
     fi
@@ -43,19 +43,19 @@ recovery_options() {
     echo "[*] Restore/Update to signed firmwares (6)"
     echo "[*] Back to main menu (<)"
     read -p "[*] Select an option using the shortened option names: " option
-    if [ $option = "1" ] 
+    if [ $option = "1" ]
     then
         sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport killall -9 SpringBoard
         main_menu
-    elif [ $option = "2" ] 
+    elif [ $option = "2" ]
     then
         sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport killall -9 backboardd
         main_menu
-    elif [ $option = "3" ] 
+    elif [ $option = "3" ]
     then
         sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport reboot
         main_menu
-    elif [ $option = "4" ] 
+    elif [ $option = "4" ]
     then
         sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport killall -8 SpringBoard
         main_menu
@@ -74,14 +74,16 @@ recovery_options() {
     else
         echo "Unknown or Unrecognised command number"
     fi
- }
+}
 
 tool_options() {
     echo "[*] Which of the following options would you like to use: "
     echo  "[*] UiCache (1)"
-    echo  "[*] iDevice Info V1.2 (2)"
+   # echo  "[*] iDevice Info V1.2 (2)"
     echo "[*] Install Packages - bundle indetifier required (3)"
     echo "[*] Remove Packages - bundle identifier required (4)"
+    echo "[*] Backup entire drive (This takes absoutely forever please do not use, 5)"
+    echo "[*] "
     echo "[*] Back to main menu (<)"
     read -p "[*] Select and option using the shortened option names: " option
     if [ $option = 3 ]
@@ -90,7 +92,7 @@ tool_options() {
         sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport apt-get install $idevicebundleidentifier
         main_menu
     elif [ $option = 4 ]
-    then 
+    then
         read -p "[*] Enter the bundle identifier of the package: " idevicebundleidentifier
         sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport apt-get remove $idevicebundleidentifier
         main_menu
@@ -120,7 +122,10 @@ tool_options() {
         main_menu
     elif [ $option = "5" ]
     then
-        scp -p -R 2222 root$ideviceip:/* . 
+        scp -p -R 2222 root$ideviceip:/* .
+    elif [ $option = "6" ]
+    then
+        sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport psswd 
     elif [ $option = "<" ]
     then
         main_menu
@@ -132,83 +137,36 @@ tool_options() {
 
 ssh_window() {
     echo "[*] Connecting to iDevice"
-    sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport 
+    sshpass -p$idevicepassword ssh root@$ideviceip -p $ideviceport
     echo "[*] Sucessfully exited SSH window"
     main_menu
 }
 
 echo [*] Welcome to ReRa1n
-echo "[*] Checking for dependencies" 
-if [ ! -e rerain-dep ]
-then
-    echo "[-] Dependencies not found"
-    echo "[*] Installing dependencies"
-    echo "[*] Checking Package Manager"
-    if [ $(which apt-get) ]; 
+echo "[*] Checking for dependencies"
+read -p "[*] Do you want to install dependencies manually or have the script do it for you? (M/A) " autog
+if [ $autog = M ]
+then 
+   echo "[*] Manual installation guide available on the github repository under MANUAL.md"
+else
+    if [ ! -e rerain-dep ]
     then
-    echo "[*] Package manager supported"
-    mkdir rerain-dep
-    cd rerain-dep
-    sudo apt-get install libgcrypt20-doc gnutls-doc gnutls-bin usbmuxd git libplist-dev libplist++ python2.7-dev python3-dev libusbmuxd4 libreadline6-dev make libusb-dev openssl libimobiledevice-dev libzip-dev libcurl4-openssl-dev libssl-dev sshpass
-    git clone https://github.com/libimobiledevice/libplist
-    cd libplist
-    ./autogen.sh
-    make
-    sudo make install
-    cd ..
-    git clone https://github.com/libimobiledevice/libusbmuxd
-    cd libusbmuxd
-    ./autogen.sh
-    make 
-    sudo make install
-    cd ..
-    git clone https://github.com/rcg4u/iphonessh
-    cd iphonessh/python-client
-    sudo chmod +wrxwrwrx *
-    cd .. 
-    cd ..
-    git clone https://github.com/AidanGamzer/not-secret-secret.git
-    cd not-secret-secret
-    sudo chmod +wrxwrxwrx *
-    mv forward.sh ../
-    cd ..
-    git clone https://github.com/libimobiledevice/libimobiledevice
-    cd libimobiledevice
-    ./autogen.sh
-    make
-    sudo make install
-    cd ..
-    git clone https://github.com/libimobiledevice/libirecovery
-    cd libirecovery
-    ./autogen.sh
-    make
-    sudo make install
-    cd ..
-    git clone https://github.com/libimobiledevice/idevicerestore
-    cd idevicerestore
-    ./autogen.sh
-    make
-    sudo make install
-    cd ..
-    git clone https://github.com/tihmstar/libgeneral
-    cd libgeneral
-    ./autogen.sh
-    make
-    sudo make install
-    cd ..
-    git clone https://github.com/tihmstar/img4tool
-    cd img4tool
-    ./autogen.sh
-    make
-    sudo make install
-    cd ..
-    echo "[*] Dependencies installed"
-    echo "[*] Restart program to continue"
-    else
-        echo "[-] Package manager not supported please go to the github page and open an issue adding you current package manager"
+        # Telling the user dependencies have not been found
+        echo "[-] Dependencies not found"
+        # Telling the user we are installing dependencies
+        echo "[*] Installing dependencies"
+        # Telling the user we are checking package manager
+        echo "[*] Checking Package Manager"
+        # Checking package manager
+        if [ $(which apt-get) ];
+        then
+            sh install.sh
+        else
+            echo "[-] Package manager not supported please go to the github page and open an issue adding you current package manager"
+            exit
+        fi
         exit
     fi
-    exit
 fi
 if [ -e rerain-dep ]
 then
@@ -224,9 +182,9 @@ then
     ideviceport=22
     # Getting IP & Root Password
     read -p "[*] Enter the IP address of your iDevice: " ideviceip
-    read -p "[*] Enter the root password of your iDevice: " idevicepassword
+    read -p "[*] Enter the root password of your iDevice (Default is alpine, make sure to change): " idevicepassword
     # SSHing into iDevice
-    ssh root@$ideviceip exit 
+    ssh root@$ideviceip exit
     sshpass -p$idevicepassword ssh root@$ideviceip cd /
     echo [*] Connected to iDevice
     # Declaring recovery and tool functions for WiFi
@@ -237,9 +195,9 @@ then
     ideviceip=localhost
     ideviceport=2222
     cd rerain-dep
-    echo "[*] Open a second terminal window and enter: cd rerain-dep && sudo ./forward.sh "
-    read -p "[*] Press enter to continue:" 
-    read -p "[*] Enter the root password of your iDevice: " idevicepassword
+    echo "[*] Open a second terminal window and enter: cd /usr/bin sudo fordward.sh "
+    read -p "[*] Press enter to continue:"
+    read -p "[*] Enter the root password of your iDevice (Default is alpine, make sure to change this): " idevicepassword
     ssh root@localhost -p 2222 exit
     sshpass -p$idevicepassword ssh root@localhost -p 2222 cd /
     echo "[*] Connected to iDevice"
@@ -250,7 +208,7 @@ then
     echo "[*] Please select an option: "
     echo "[*] Restore/Update - (1)"
     echo "[*] Reboot - [DFU/RESTORE] - (2)"
-    echo "[*] iDeviceInfo V1.1 - Experimental (3)"
+  #  echo "[*] iDeviceInfo V1.1 - Experimental (3)"
     read -p "[*] Select an option using the shortened option names" option
     if [ $option = "1" ]
     then
@@ -261,8 +219,8 @@ then
         irecovery -c reboot
         echo "[*] iDevice rebooting"
         exit
-    elif [ $option = 3 ] 
-    then 
+    elif [ $option = 3 ]
+    then
         ideviceinfo > ideviceinfo.txt
         grep ActivationState: ideviceinfo.txt
         grep BasebandVersion: ideviceinfo.txt
@@ -280,10 +238,10 @@ then
         grep ProductVersion: ideviceinfo.txt
         grep -w SerialNumber: ideviceinfo.txt
         grep WiFiAddress: ideviceinfo.txt
-    else 
+    else
         exit
     fi
 else
     echo [-] Unknown or Unavailable selected.
-    exit 
+    exit
 fi
